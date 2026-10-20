@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Angel Zampetta Amica - Admin Demo</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f3f7f4;color:#24342b;font-family:Arial,sans-serif}
+header{background:#19764d;color:white;padding:22px 18px}
+header h1{margin:0;font-size:23px}
+header p{margin:7px 0 0;font-size:13px}
+main{max-width:900px;margin:auto;padding:16px}
+.notice{background:#fff1d6;border-radius:12px;padding:13px;font-size:13px;margin-bottom:16px}
+nav{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px}
+nav button{border:0;border-radius:10px;padding:12px;background:white;color:#24543a;font-weight:bold;white-space:nowrap}
+nav button.active{background:#19764d;color:white}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.card,.panel{background:white;border-radius:14px;padding:17px;box-shadow:0 2px 8px #0000000b}
+.card small{display:block;color:#64766a;margin-bottom:9px}
+.card strong{font-size:25px}
+.panel{margin-top:15px}
+h2{font-size:20px;margin:0 0 14px}
+.item{padding:13px 0;border-bottom:1px solid #e6ece8}
+.item:last-child{border:0}
+.item strong{display:block;margin-bottom:5px}
+.item span{font-size:13px;color:#68796e}
+.tag{display:inline-block;background:#e4f4e9;color:#17653e;border-radius:20px;padding:5px 9px;font-size:12px;margin-top:8px}
+section{display:none}
+section.visible{display:block}
+footer{text-align:center;color:#738278;font-size:12px;padding:25px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+</head>
+<body>
+<header>
+<h1>🐾 Angel Admin</h1>
+<p>Pannello amministrativo · Versione dimostrativa</p>
+</header>
+<main>
+<div class="notice">⚠️ DEMO PUBBLICA: dati inventati. Nessun accesso privato, pagamento o utente reale.</div>
+<nav>
+<button class="active" onclick="show('home',this)">📊 Panoramica</button>
+<button onclick="show('users',this)">👥 Utenti</button>
+<button onclick="show('bookings',this)">📅 Prenotazioni</button>
+<button onclick="show('payments',this)">💶 Pagamenti</button>
+<button onclick="show('reports',this)">🛡️ Segnalazioni</button>
+</nav>
+<section id="home" class="visible">
+<div class="grid">
+<div class="card"><small>Utenti demo</small><strong>128</strong></div>
+<div class="card"><small>Custodi demo</small><strong>36</strong></div>
+<div class="card"><small>Prenotazioni demo</small><strong>24</strong></div>
+<div class="card"><small>Commissioni demo</small><strong>186 €</strong></div>
+</div>
+<div class="panel"><h2>Benvenuti nel pannello</h2><p>Qui potrete controllare l'attività di Angel Zampetta Amica da smartphone.</p><p>In futuro tu e Monica avrete accessi personali e autorizzazioni dedicate.</p></div>
+</section>
+<section id="users">
+<div class="panel"><h2>Utenti e custodi</h2>
+<div class="item"><strong>Marco (esempio)</strong><span>Custode · Palosco</span><br><span class="tag">Attivo - demo</span></div>
+<div class="item"><strong>Laura (esempio)</strong><span>Proprietaria · Bergamo</span><br><span class="tag">Da verificare - demo</span></div>
+</div></section>
+<section id="bookings">
+<div class="panel"><h2>Prenotazioni</h2>
+<div class="item"><strong>Custodia cane</strong><span>22-24 ottobre · Confermata (demo)</span></div>
+<div class="item"><strong>Visita a domicilio</strong><span>25 ottobre · In attesa (demo)</span></div>
+</div></section>
+<section id="payments">
+<div class="panel"><h2>Pagamenti e commissioni</h2>
+<div class="item"><strong>Custodia cane</strong><span>Commissione dimostrativa: 5 €</span></div>
+<div class="item"><strong>Visita a domicilio</strong><span>Commissione dimostrativa: 8 €</span></div>
+<p>Nessun pagamento reale è collegato.</p>
+</div></section>
+<section id="reports">
+<div class="panel"><h2>Segnalazioni</h2>
+<div class="item"><strong>Segnalazione dimostrativa</strong><span>Profilo da controllare · Non reale</span></div>
+<p>In futuro potrete verificare le segnalazioni e intervenire sugli account.</p>
+</div></section>
+</main>
+<footer>Angel Zampetta Amica · Admin Demo 0.1</footer>
+<script>
+function show(id,button){
+document.querySelectorAll('section').forEach(s=>s.classList.remove('visible'));
+document.getElementById(id).classList.add('visible');
+document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+button.classList.add('active');
+}
+</script>
+</body>
+</html>
