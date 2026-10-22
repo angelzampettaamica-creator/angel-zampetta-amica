@@ -64,15 +64,37 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // Inseriremo qui URL e chiave pubblica di Supabase.
-    // Finché non sono configurati, non inviamo registrazioni.
-    document.getElementById("registrazione")
-      .addEventListener("submit", function (evento) {
-        evento.preventDefault();
-        document.getElementById("messaggio").textContent =
-          "La registrazione sarà disponibile dopo il collegamento a Supabase.";
-      });
-  </script>
+<script>
+  const supabaseUrl = 'https://svudedpkugiehiezfupd.supabase.co';
+  const supabaseKey = 'sb_publishable_g05v_CHcx1c-ua7J36IKog_nnTxaJUB';
+
+  const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+  document.getElementById('registrazione').addEventListener('submit', async function (evento) {
+    evento.preventDefault();
+
+    const nome = document.getElementById('nome').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const messaggio = document.getElementById('messaggio');
+
+    messaggio.textContent = 'Registrazione in corso...';
+
+    const { error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: password,
+      options: {
+        data: { nome: nome },
+        emailRedirectTo: 'https://angelzampettaamica-creator.github.io/angel-zampetta-amica/registrazione.html'
+      }
+    });
+
+    if (error) {
+      messaggio.textContent = 'Errore: ' + error.message;
+    } else {
+      messaggio.textContent = 'Controlla la tua email per confermare la registrazione!';
+    }
+  });
+</script>
 </body>
 </html>
