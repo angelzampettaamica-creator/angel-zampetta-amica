@@ -1,0 +1,100 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accedi - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f7f2;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .contenitore {
+      background: white;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 4px 18px #00000015;
+      width: 90%;
+      max-width: 420px;
+    }
+    h1 { color: #176b50; font-size: 28px; }
+    label { display: block; margin-top: 18px; }
+    input {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 13px;
+      margin-top: 7px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      margin-top: 24px;
+      border: 0;
+      border-radius: 8px;
+      background: #176b50;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #messaggio { margin-top: 16px; }
+    a { color: #176b50; }
+  </style>
+</head>
+<body>
+  <div class="contenitore">
+    <h1>🐾 Angel Zampetta Amica</h1>
+    <h2>Accedi al tuo account</h2>
+
+    <form id="accesso">
+      <label for="email">Email</label>
+      <input id="email" type="email" required autocomplete="email">
+
+      <label for="password">Password</label>
+      <input id="password" type="password" required autocomplete="current-password">
+
+      <button type="submit">Accedi</button>
+    </form>
+
+    <p id="messaggio" role="status"></p>
+    <p>Non hai un account?
+      <a href="registrazione.html">Registrati</a>
+    </p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = 'https://svudedpkugiehiezfupd.supabase.co';
+    const supabaseKey = 'sb_publishable_g05v_CHcx1c-ua7J36IKog_nnTxaJUB';
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
+
+    document.getElementById('accesso').addEventListener('submit', async function(evento) {
+      evento.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value;
+      const messaggio = document.getElementById('messaggio');
+
+      messaggio.textContent = 'Accesso in corso...';
+
+      const { error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+      if (error) {
+        messaggio.textContent = 'Accesso non riuscito: controlla email, password e conferma dell’account.';
+      } else {
+        messaggio.textContent = 'Accesso effettuato con successo! 🐾';
+      }
+    });
+  </script>
+</body>
+</html>
