@@ -59,7 +59,7 @@
 
       <label for="password">Password</label>
       <input id="password" type="password" required autocomplete="current-password">
-
+<button type="button" id="mostraPassword">👁️ Mostra password</button>
       <button type="submit">Accedi</button>
     </form>
 
@@ -98,5 +98,19 @@
       }
     });
   </script>
+  
+<script>
+  const campoPassword = document.getElementById('password');
+  const occhio = document.getElementById('mostraPassword');
+
+  occhio.addEventListener('click', function () {
+    const visibile = campoPassword.type === 'text';
+    campoPassword.type = visibile ? 'password' : 'text';
+    occhio.textContent = visibile
+      ? '👁️ Mostra password'
+      : '🙈 Nascondi password';
+  });
+</script>
+
 </body>
 </html>
