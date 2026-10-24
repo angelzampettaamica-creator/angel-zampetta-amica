@@ -27,6 +27,11 @@
   <option value="entrambi">💚 Entrambi</option>
 </select>
 
+<p>
+  <button id="salva-profilo" type="button">💚 Salva il mio profilo</button>
+</p>
+<p id="esito-profilo"></p>
+
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
@@ -48,6 +53,35 @@
       window.location.replace('accesso.html');
     });
     verificaAccesso();
+    
+document.getElementById('salva-profilo').addEventListener('click', async () => {
+  const messaggio = document.getElementById('esito-profilo');
+  const ruolo = document.getElementById('ruolo').value;
+
+  if (!ruolo) {
+    messaggio.textContent = 'Seleziona prima un ruolo.';
+    return;
+  }
+
+  messaggio.textContent = 'Salvataggio in corso...';
+
+  const { data: { user }, error: erroreAccesso } =
+    await supabaseClient.auth.getUser();
+
+  if (erroreAccesso || !user) {
+    messaggio.textContent = 'Devi effettuare l’accesso.';
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('profili')
+    .upsert({ id: user.id, ruolo: ruolo }, { onConflict: 'id' });
+
+  messaggio.textContent = error
+    ? 'Errore nel salvataggio: ' + error.message
+    : '💚 Profilo salvato con successo!';
+});
+
   </script>
 </body>
 </html>
