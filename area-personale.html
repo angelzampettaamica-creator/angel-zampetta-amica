@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Area personale - Angel Zampetta Amica</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f0f7f2; margin: 0; padding: 24px; }
+    main { max-width: 520px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; text-align: center; }
+    h1 { color: #176b52; }
+    button { background: #176b52; color: white; padding: 14px 24px; border: 0; border-radius: 10px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🐾 Angel Zampetta Amica</h1>
+    <h2>La tua area personale</h2>
+    <p id="messaggio">Verifica dell'accesso in corso...</p>
+    <button id="esci" type="button" hidden>Esci dall'account</button>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseClient = supabase.createClient(
+      'https://svudedpkugiehiezfupd.supabase.co',
+      'sb_publishable_g05v_CHcx1c-ua7J36IKog_nnTxaJUB'
+    );
+    async function verificaAccesso() {
+      const { data: { user }, error } = await supabaseClient.auth.getUser();
+      if (error || !user) {
+        window.location.replace('accesso.html');
+        return;
+      }
+      document.getElementById('messaggio').textContent = 'Benvenuto! Accesso effettuato come ' + user.email;
+      document.getElementById('esci').hidden = false;
+    }
+    document.getElementById('esci').addEventListener('click', async () => {
+      await supabaseClient.auth.signOut();
+      window.location.replace('accesso.html');
+    });
+    verificaAccesso();
+  </script>
+</body>
+</html>
