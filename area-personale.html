@@ -19,7 +19,9 @@
     <button id="esci" type="button" hidden>Esci dall'account</button>
  
 <h3>🐾 Come vuoi utilizzare Angel Zampetta Amica?</h3>
-<p>Scegli il tuo ruolo:</p>
+<p>Il tuo nome:</p>
+<input type="text" id="nome" placeholder="Scrivi il tuo nome">
+    <p>Scegli il tuo ruolo:</p>
 <select id="ruolo">
   <option value="">Seleziona un ruolo</option>
   <option value="proprietario">🐶 Proprietario</option>
@@ -62,7 +64,7 @@ async function caricaRuolo() {
 
   const { data, error } = await supabaseClient
     .from('profili')
-    .select('ruolo')
+    .select('nome, ruolo')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -73,6 +75,7 @@ async function caricaRuolo() {
 
   if (data && data.ruolo) {
     document.getElementById('ruolo').value = data.ruolo;
+    document.getElementById('nome').value = data.nome || '';
   }
 }
 
@@ -81,7 +84,7 @@ caricaRuolo();
 document.getElementById('salva-profilo').addEventListener('click', async () => {
   const messaggio = document.getElementById('esito-profilo');
   const ruolo = document.getElementById('ruolo').value;
-
+const nome = document.getElementById('nome').value.trim();
   if (!ruolo) {
     messaggio.textContent = 'Seleziona prima un ruolo.';
     return;
@@ -99,7 +102,7 @@ document.getElementById('salva-profilo').addEventListener('click', async () => {
 
   const { error } = await supabaseClient
     .from('profili')
-    .upsert({ id: user.id, ruolo: ruolo }, { onConflict: 'id' });
+  .upsert({ id: user.id, nome: nome, ruolo: ruolo }, { onConflict: 'id' });
 
   messaggio.textContent = error
     ? 'Errore nel salvataggio: ' + error.message
