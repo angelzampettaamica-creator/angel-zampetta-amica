@@ -54,6 +54,30 @@
     });
     verificaAccesso();
     
+async function caricaRuolo() {
+  const { data: { user }, error: erroreAccesso } =
+    await supabaseClient.auth.getUser();
+
+  if (erroreAccesso || !user) return;
+
+  const { data, error } = await supabaseClient
+    .from('profili')
+    .select('ruolo')
+    .eq('id', user.id)
+    .maybeSingle();
+
+  if (error) {
+    console.error('Errore caricamento profilo:', error.message);
+    return;
+  }
+
+  if (data && data.ruolo) {
+    document.getElementById('ruolo').value = data.ruolo;
+  }
+}
+
+caricaRuolo();
+
 document.getElementById('salva-profilo').addEventListener('click', async () => {
   const messaggio = document.getElementById('esito-profilo');
   const ruolo = document.getElementById('ruolo').value;
