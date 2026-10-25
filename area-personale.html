@@ -81,7 +81,7 @@ async function caricaRuolo() {
 
   const { data, error } = await supabaseClient
     .from('profili')
-    .select('nome, comune, ruolo')
+  .select('nome, comune, ruolo, telefono')
     .eq('id', user.id)
     .maybeSingle();
 
@@ -94,6 +94,7 @@ async function caricaRuolo() {
     document.getElementById('ruolo').value = data.ruolo;
     document.getElementById('nome').value = data.nome || '';
    document.getElementById('comune').value = data.comune || '';
+    document.getElementById('telefono').value = data.telefono || '';
   }
 }
 
@@ -104,6 +105,7 @@ document.getElementById('salva-profilo').addEventListener('click', async () => {
   const ruolo = document.getElementById('ruolo').value;
 const nome = document.getElementById('nome').value.trim();
   const comune = document.getElementById('comune').value.trim();
+  const telefono = document.getElementById('telefono').value.trim();
   if (!ruolo) {
     messaggio.textContent = 'Seleziona prima un ruolo.';
     return;
@@ -121,7 +123,7 @@ const nome = document.getElementById('nome').value.trim();
 
   const { error } = await supabaseClient
     .from('profili')
-  .upsert({ id: user.id, nome: nome, comune: comune, ruolo: ruolo }, { onConflict: 'id' });
+  .upsert({ id: user.id, nome: nome, comune: comune, ruolo: ruolo, telefono: telefono }, { onConflict: 'id' });
 
   messaggio.textContent = error
     ? 'Errore nel salvataggio: ' + error.message
