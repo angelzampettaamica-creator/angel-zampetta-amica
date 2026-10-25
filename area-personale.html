@@ -36,8 +36,9 @@
 </p>
 <p id="esito-profilo"></p>
     <section>
-  <h3>🛡️ Verifica del profilo</h3>
-  <p>📧 Email: verifica da controllare</p>
+     <h3>🛡️ Verifica del profilo</h3>
+      <p id="stato-email">📧 Email: verifica in corso...</p>   
+
   <p>📱 Telefono: da verificare</p>
   <p>🪪 Identità: da verificare</p>
   <p>🔐 SPID: integrazione prevista in futuro</p>
@@ -58,11 +59,16 @@
       }
       document.getElementById('messaggio').textContent = 'Benvenuto! Accesso effettuato come ' + user.email;
       document.getElementById('esci').hidden = false;
-    }
+      const emailConfermata = Boolean(user.email_confirmed_at);
+document.getElementById('stato-email').textContent = emailConfermata
+  ? '✅ Email verificata'
+  : '📧 Email da verificare';
+    ;
     document.getElementById('esci').addEventListener('click', async () => {
       await supabaseClient.auth.signOut();
       window.location.replace('accesso.html');
     });
+    }
     verificaAccesso();
     
 async function caricaRuolo() {
