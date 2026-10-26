@@ -118,6 +118,28 @@ const descrizione = document.getElementById('descrizione').value.trim();
   alert('Profilo custode salvato con successo! 🐾');
 }
  });
+async function caricaProfiloCustode() {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    if (error || !user) return;
+    const { data: profilo, error: erroreCaricamento } = await supabaseClient
+      .from('profili_custodi')
+      .select('*')
+      .eq('id', user.id)
+      .maybeSingle();
+    if (erroreCaricamento || !profilo) return;
+  const animaliSalvati = (profilo.animali || '').split(',').map(a => a.trim());
+  document.querySelectorAll('input[name="animali"]').forEach(casella => {
+      casella.checked = animaliSalvati.includes(casella.value);
+    });
+  const taglieSalvate = (profilo.taglie_cani || '').split(',').map(t => t.trim());
+  document.querySelectorAll('input[name="taglie_cani"]').forEach(casella => {
+      casella.checked = taglieSalvate.includes(casella.value);
+    });
+  taglieCani.style.display = cani.checked ? 'block' : 'none';
+  document.getElementById('servizio').value = profilo.servizio || 'Custodia a casa mia';
+  document.getElementById('descrizione').value = profilo.descrizione || '';
+  }
+  caricaProfiloCustode();
 </script>
 
 </body>
