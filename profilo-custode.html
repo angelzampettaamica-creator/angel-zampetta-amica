@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profilo Custode - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4faf5;
+      padding: 20px;
+      color: #243b2c;
+    }
+    main {
+      max-width: 550px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+    }
+    h1 { color: #287b49; }
+    label {
+      display: block;
+      margin-top: 18px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background: #287b49;
+      color: white;
+      border: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🐾 Profilo Custode</h1>
+    <p>Raccontaci come puoi prenderti cura degli animali.</p>
+
+    <label>Quali animali puoi accudire?</label>
+    <label><input type="checkbox"> Cani</label>
+    <label><input type="checkbox"> Gatti</label>
+    <label><input type="checkbox"> Conigli</label>
+    <label><input type="checkbox"> Uccellini</label>
+    <label><input type="checkbox"> Altri piccoli animali</label>
+
+    <label for="servizio">Tipo di servizio</label>
+    <select id="servizio">
+      <option>Custodia a casa mia</option>
+      <option>Custodia a casa del proprietario</option>
+      <option>Passeggiate</option>
+      <option>Più servizi</option>
+    </select>
+
+    <label for="descrizione">Presentati ai proprietari</label>
+    <textarea id="descrizione" rows="5"
+      placeholder="Racconta la tua esperienza con gli animali..."></textarea>
+
+    <p>💚 Questa è una prima anteprima. Il salvataggio sarà aggiunto successivamente.</p>
+  </main>
+</body>
+</html>
