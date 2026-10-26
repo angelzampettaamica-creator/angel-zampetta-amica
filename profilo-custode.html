@@ -50,12 +50,13 @@
     <p>Raccontaci come puoi prenderti cura degli animali.</p>
 
     <label>Quali animali puoi accudire?</label>
-    <label><input type="checkbox"> Cani</label>
-    
+    <label><input type="checkbox" id="cani"> 🐶 Cani</label>
+  <div id="taglie-cani" style="display:none; background:#f0f7f1; padding:15px; border:1px solid #b8d8bf; border-radius:12px; margin-top:10px;">  
 <label>Taglie dei cani che posso accudire:</label>
 <label><input type="checkbox"> Piccola (fino a 10 kg)</label>
 <label><input type="checkbox"> Media (oltre 10 fino a 25 kg)</label>
 <label><input type="checkbox"> Grande (oltre 25 kg)</label>
+    </div>
 
     <label><input type="checkbox"> Gatti</label>
     <label><input type="checkbox"> Conigli</label>
@@ -76,5 +77,18 @@
 
     <p>💚 Questa è una prima anteprima. Il salvataggio sarà aggiunto successivamente.</p>
   </main>
+
+
+<script>
+  const cani = document.getElementById('cani');
+  const taglieCani = document.getElementById('taglie-cani');
+
+  cani.addEventListener('change', function() {
+    taglieCani.style.display = cani.checked ? 'block' : 'none';
+  });
+</script>
+
+</body>
+</html>
 </body>
 </html>
