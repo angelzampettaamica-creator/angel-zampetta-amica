@@ -50,18 +50,18 @@
     <p>Raccontaci come puoi prenderti cura degli animali.</p>
 
     <label>Quali animali puoi accudire?</label>
-    <label><input type="checkbox" id="cani"> 🐶 Cani</label>
+    <label><input type="checkbox" id="cani" name="animali" value="Cani"> 🐶 Cani</label>
   <div id="taglie-cani" style="display:none; background:#f0f7f1; padding:15px; border:1px solid #b8d8bf; border-radius:12px; margin-top:10px;">  
 <label>Taglie dei cani che posso accudire:</label>
-<label><input type="checkbox"> Piccola (fino a 10 kg)</label>
-<label><input type="checkbox"> Media (oltre 10 fino a 25 kg)</label>
-<label><input type="checkbox"> Grande (oltre 25 kg)</label>
+<label><input type="checkbox" name="taglie_cani" value="Piccola"> Piccola (fino a 10 kg)</label>
+<label><input type="checkbox" name="taglie_cani" value="Media"> Media (oltre 10 fino a 25 kg)</label>
+<label><input type="checkbox" name="taglie_cani" value="Grande"> Grande (oltre 25 kg)</label>
     </div>
 
-    <label><input type="checkbox"> Gatti</label>
-    <label><input type="checkbox"> Conigli</label>
-    <label><input type="checkbox"> Uccellini</label>
-    <label><input type="checkbox"> Altri piccoli animali</label>
+    <label><input type="checkbox" name="animali" value="Gatti"> Gatti</label>
+    <label><input type="checkbox" name="animali" value="Conigli"> Conigli</label>
+    <label><input type="checkbox" name="animali" value="Uccellini"> Uccellini</label>
+    <label><input type="checkbox" name="animali" value="Altri piccoli animali"> Altri piccoli animali</label>
 
     <label for="servizio">Tipo di servizio</label>
     <select id="servizio">
@@ -75,20 +75,52 @@
     <textarea id="descrizione" rows="5"
       placeholder="Racconta la tua esperienza con gli animali..."></textarea>
 
-    <p>💚 Questa è una prima anteprima. Il salvataggio sarà aggiunto successivamente.</p>
+  <button id="salva-profilo" type="button">💚 Salva il mio profilo custode</button>
   </main>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <script>
   const cani = document.getElementById('cani');
   const taglieCani = document.getElementById('taglie-cani');
-
+const supabaseClient = supabase.createClient(
+  'https://svudedpkugiehiezfupd.supabase.co',
+  'sb_publishable_g05v_Chcxlc-ua7J36IKoq_nnTxaJU8'
+);
   cani.addEventListener('change', function() {
     taglieCani.style.display = cani.checked ? 'block' : 'none';
   });
+  document.getElementById('salva-profilo').addEventListener('click', async function() {
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
+
+  if (error || !user) {
+    alert('Devi effettuare l’accesso prima di salvare.');
+    return;
+  }
+const animali = Array.from(
+  document.querySelectorAll('input[name="animali"]:checked')
+).map(el => el.value);
+ const taglie = Array.from(document.querySelectorAll('input[name="taglie_cani"]:checked')).map(el => el.value);
+  
+    const servizio = document.getElementById('servizio').value;
+const descrizione = document.getElementById('descrizione').value.trim();
+  const { error: erroreSalvataggio } = await supabaseClient
+  .from('profili_custodi')
+  .upsert({
+    id: user.id,
+    animali: animali.join(', '),
+    taglie_cani: cani.checked ? taglie.join(', ') : '',
+    servizio: servizio,
+    descrizione: descrizione
+  }, { onConflict: 'id' });
+    if (erroreSalvataggio) {
+  alert('Errore nel salvataggio: ' + erroreSalvataggio.message);
+} else {
+  alert('Profilo custode salvato con successo! 🐾');
+}
+ });
 </script>
 
 </body>
 </html>
-</body>
-</html>
+
+
