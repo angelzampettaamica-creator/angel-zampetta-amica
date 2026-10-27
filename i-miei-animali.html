@@ -72,8 +72,58 @@
     <textarea id="esigenze" rows="4"
       placeholder="Alimentazione, farmaci, allergie, passeggiate e altre informazioni importanti..."></textarea>
 
-    <button type="button" disabled>💚 Salva animale (in preparazione)</button>
+   <button id="salva-animale" type="button">💚 Salva il mio animale</button>
     <p>Il salvataggio verrà attivato dopo aver preparato il database.</p>
   </main>
+  
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+  const supabaseClient = supabase.createClient(
+    'https://svudedpkugiehiezfupd.supabase.co',
+    'sb_publishable_g05v_CHcx1c-ua7J36IKog_nnTxaJUB'
+  );
+
+document.getElementById('salva-animale').addEventListener('click', async function () {
+  const { data: { user }, error: erroreAccesso } =
+    await supabaseClient.auth.getUser();
+
+  if (erroreAccesso || !user) {
+    alert('Devi effettuare l’accesso prima di salvare.');
+    return;
+  }
+
+  const nome = document.getElementById('nome').value.trim();
+  const specie = document.getElementById('specie').value;
+  const eta = document.getElementById('eta').value.trim();
+  const pesoTesto = document.getElementById('peso').value;
+  const carattere = document.getElementById('carattere').value.trim();
+  const esigenze = document.getElementById('esigenze').value.trim();
+
+  if (!nome) {
+    alert('Inserisci il nome del tuo animale.');
+    return;
+  }
+
+  const { error } = await supabaseClient
+    .from('animali')
+    .insert({
+      proprietario_id: user.id,
+      nome: nome,
+      specie: specie,
+      eta: eta,
+      peso: pesoTesto === '' ? null : Number(pesoTesto),
+      carattere: carattere,
+      esigenze: esigenze
+    });
+
+  if (error) {
+    alert('Errore nel salvataggio: ' + error.message);
+  } else {
+    alert('Animale salvato con successo! 🐾💚');
+  }
+});
+</script>
+
 </body>
 </html>
