@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>I miei animali - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4faf5;
+      padding: 20px;
+      color: #243b2c;
+    }
+    main {
+      max-width: 550px;
+      margin: 30px auto;
+      background: white;
+      padding: 25px;
+      border-radius: 15px;
+    }
+    h1 { color: #287b49; }
+    label { display: block; margin-top: 16px; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin-top: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 20px;
+      padding: 12px;
+      background: #287b49;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>🐾 I miei animali</h1>
+    <p>Presenta il tuo animale a chi se ne prenderà cura.</p>
+
+    <label for="nome">Nome dell'animale</label>
+    <input id="nome" type="text" placeholder="Es. Angel">
+
+    <label for="specie">Che animale è?</label>
+    <select id="specie">
+      <option value="Cane">Cane</option>
+      <option value="Gatto">Gatto</option>
+      <option value="Coniglio">Coniglio</option>
+      <option value="Uccellino">Uccellino</option>
+      <option value="Altro">Altro</option>
+    </select>
+
+    <label for="eta">Età</label>
+    <input id="eta" type="text" placeholder="Es. 5 anni">
+
+    <label for="peso">Peso (kg)</label>
+    <input id="peso" type="number" min="0" step="0.1">
+
+    <label for="foto">Foto dell'animale</label>
+    <input id="foto" type="file" accept="image/*">
+
+    <label for="carattere">Carattere e comportamento</label>
+    <textarea id="carattere" rows="4"
+      placeholder="È socievole? Timoroso? Va d'accordo con altri animali?"></textarea>
+
+    <label for="esigenze">Abitudini ed esigenze particolari</label>
+    <textarea id="esigenze" rows="4"
+      placeholder="Alimentazione, farmaci, allergie, passeggiate e altre informazioni importanti..."></textarea>
+
+    <button type="button" disabled>💚 Salva animale (in preparazione)</button>
+    <p>Il salvataggio verrà attivato dopo aver preparato il database.</p>
+  </main>
+</body>
+</html>
