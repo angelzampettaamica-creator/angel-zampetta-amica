@@ -158,7 +158,7 @@ document.getElementById('salva-animale').addEventListener('click', async functio
     const dettagli = document.createElement('p');
 
     nome.textContent = animale.nome;
-    dettagli.textContent = `${animale.specie} - ${animale.eta ?? 'Età non indicata'} anni`;
+    dettagli.textContent = `${animale.specie} - ${animale.eta ?? 'Non indicata'} anni | Peso: ${animale.peso ?? 'Non indicato'} kg | Carattere: ${animale.carattere || 'Non indicato'} | Esigenze: ${animale.esigenze || 'Nessuna indicazione'}`;
 
     scheda.append(nome, dettagli);
     lista.appendChild(scheda);
