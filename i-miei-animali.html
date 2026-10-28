@@ -180,6 +180,8 @@ caricaAnimali();
     const dettagli = document.createElement('p');
 const pulsanteModifica = document.createElement('button');
 pulsanteModifica.textContent = '✏️ Modifica';
+    const pulsanteElimina = document.createElement('button');
+pulsanteElimina.textContent = '🗑️ Elimina';
     pulsanteModifica.addEventListener('click', () => {
       animaleInModifica = animale.id;
   document.getElementById('nome').value = animale.nome || '';
@@ -191,10 +193,30 @@ pulsanteModifica.textContent = '✏️ Modifica';
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
+    pulsanteElimina.addEventListener('click', async () => {
+  const conferma = confirm(
+    `Vuoi davvero eliminare ${animale.nome}?`
+  );
+
+  if (!conferma) return;
+      const { error } = await supabaseClient
+  .from('animali')
+  .delete()
+  .eq('id', animale.id)
+  .eq('proprietario_id', user.id);
+
+if (error) {
+  alert('Errore nella cancellazione: ' + error.message);
+  return;
+}
+
+alert('Animale eliminato con successo!');
+caricaAnimali();
+});
     nome.textContent = animale.nome;
     dettagli.textContent = `${animale.specie} - ${animale.eta ?? 'Non indicata'} anni | Peso: ${animale.peso ?? 'Non indicato'} kg | Carattere: ${animale.carattere || 'Non indicato'} | Esigenze: ${animale.esigenze || 'Nessuna indicazione'}`;
 
-    scheda.append(nome, dettagli, pulsanteModifica);
+    scheda.append(nome, dettagli, pulsanteModifica, pulsanteElimina);
     lista.appendChild(scheda);
   });
 }
