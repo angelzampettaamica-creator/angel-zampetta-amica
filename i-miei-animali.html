@@ -73,7 +73,10 @@
       placeholder="Alimentazione, farmaci, allergie, passeggiate e altre informazioni importanti..."></textarea>
 
    <button id="salva-animale" type="button">💚 Salva il mio animale</button>
-    <p>Il salvataggio verrà attivato dopo aver preparato il database.</p>
+    <p>Qui puoi registrare il tuo animale e salvare le sue informazioni.</p>
+    <h2>🐾 I miei animali registrati</h2>
+<div id="lista-animali"></div>
+<p id="messaggio-lista"></p>
   </main>
   
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -123,6 +126,46 @@ document.getElementById('salva-animale').addEventListener('click', async functio
     alert('Animale salvato con successo! 🐾💚');
   }
 });
+  async function caricaAnimali() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (!user) return;
+
+  const { data, error } = await supabaseClient
+    .from('animali')
+    .select('*')
+    .eq('proprietario_id', user.id);
+
+  const lista = document.getElementById('lista-animali');
+  const messaggio = document.getElementById('messaggio-lista');
+
+  if (error) {
+    messaggio.textContent = 'Errore nel caricamento degli animali.';
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    messaggio.textContent = 'Non hai ancora registrato animali.';
+    return;
+  }
+
+  messaggio.textContent = '';
+  lista.replaceChildren();
+
+  data.forEach(animale => {
+    const scheda = document.createElement('div');
+    const nome = document.createElement('h3');
+    const dettagli = document.createElement('p');
+
+    nome.textContent = animale.nome;
+    dettagli.textContent = `${animale.specie} - ${animale.eta ?? 'Età non indicata'} anni`;
+
+    scheda.append(nome, dettagli);
+    lista.appendChild(scheda);
+  });
+}
+
+caricaAnimali();
 </script>
 
 </body>
