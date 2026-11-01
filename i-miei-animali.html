@@ -45,7 +45,8 @@
 
     <label for="nome">Nome dell'animale</label>
     <input id="nome" type="text" placeholder="Es. Angel">
-
+<label for="foto">Foto dell'animale</label>
+<input id="foto" type="file" accept="image/jpeg,image/png,image/webp">
     <label for="specie">Che animale è?</label>
     <select id="specie">
       <option value="Cane">Cane</option>
@@ -102,18 +103,41 @@ document.getElementById('salva-animale').addEventListener('click', async functio
   const pesoTesto = document.getElementById('peso').value;
   const carattere = document.getElementById('carattere').value.trim();
   const esigenze = document.getElementById('esigenze').value.trim();
-
+  const fileFoto = document.getElementById('foto').files[0];
+if (fileFoto && fileFoto.size > 5 * 1024 * 1024) {
+  alert('La foto non deve superare 5 MB.');
+  return;
+}
+  if (fileFoto && !['image/jpeg', 'image/png', 'image/webp'].includes(fileFoto.type)) {
+  alert('Scegli una foto JPG, PNG o WebP.');
+  return;
+}
   if (!nome) {
     alert('Inserisci il nome del tuo animale.');
     return;
   }
-const datiAnimale = {
+let percorsoFoto = null;
+  if (fileFoto) {
+    const estensione = fileFoto.name.split('.').pop().toLowerCase();
+    const nomeFile = `${crypto.randomUUID()}.${estensione}`;
+    const percorso = `${user.id}/${nomeFile}`;
+    const { error: erroreFoto } = await supabaseClient.storage
+  .from('foto-animali')
+  .upload(percorso, fileFoto);
+    if (erroreFoto) {
+      alert('Errore nel caricamento della foto: ' + erroreFoto.message);
+      return;
+      }
+    percorsoFoto = percorso;
+    }
+  const datiAnimale = {
   nome: nome,
   specie: specie,
   eta: eta,
   peso: pesoTesto === '' ? null : Number(pesoTesto),
   carattere: carattere,
-  esigenze: esigenze
+  esigenze: esigenze,
+    ...(percorsoFoto ? { foto_url: percorsoFoto } : {})
 };
   
 let error;
