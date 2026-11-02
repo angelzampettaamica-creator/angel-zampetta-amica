@@ -197,8 +197,23 @@ caricaAnimali();
   messaggio.textContent = '';
   lista.replaceChildren();
 
-  data.forEach(animale => {
+  data.forEach(async (animale) => {
     const scheda = document.createElement('div');
+    const immagine = document.createElement('img');
+    immagine.alt = animale.nome;
+    immagine.style.width = '150px';
+    immagine.style.borderRadius = '12px';
+    immagine.style.display = 'block';
+    immagine.style.marginBottom = '10px';
+    if (animale.foto_url) {
+      const { data: datiFoto, error: erroreFoto } = await supabaseClient.storage
+  .from('foto-animali')
+  .createSignedUrl(animale.foto_url, 3600);
+      if (!erroreFoto && datiFoto?.signedUrl) {
+        immagine.src = datiFoto.signedUrl;
+        scheda.appendChild(immagine);
+        }
+      }
     const nome = document.createElement('h3');
     const dettagli = document.createElement('p');
 const pulsanteModifica = document.createElement('button');
