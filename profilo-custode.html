@@ -115,7 +115,7 @@ const comune = document.getElementById('comune').value.trim();
     id: user.id,
     animali: animali.join(', '),
     taglie_cani: cani.checked ? taglie.join(', ') : '',
-    servizio: servizio
+    servizio: servizio,
     descrizione: descrizione,
 comune: comune
   }, { onConflict: 'id' });
