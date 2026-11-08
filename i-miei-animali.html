@@ -252,7 +252,17 @@ alert('Animale eliminato con successo!');
 caricaAnimali();
 });
     nome.textContent = animale.nome;
-    dettagli.textContent = `${animale.specie} - ${animale.eta ?? 'Non indicata'} anni | Peso: ${animale.peso ?? 'Non indicato'} kg | Carattere: ${animale.carattere || 'Non indicato'} | Esigenze: ${animale.esigenze || 'Nessuna indicazione'}`;
+
+dettagli.innerHTML = `
+  <strong>Specie:</strong> ${animale.specie || 'Non indicata'}<br>
+  <strong>Età:</strong> ${animale.eta ?? 'Non indicata'} anni<br>
+  <strong>Peso:</strong> ${animale.peso ?? 'Non indicato'} kg<br><br>
+  <strong>🐾 Carattere</strong><br>
+  ${animale.carattere || 'Non indicato'}<br><br>
+  <strong>📋 Esigenze particolari</strong><br>
+  ${animale.esigenze || 'Nessuna indicazione'}
+`;
+
 
     scheda.append(nome, dettagli, pulsanteModifica, pulsanteElimina);
     lista.appendChild(scheda);
