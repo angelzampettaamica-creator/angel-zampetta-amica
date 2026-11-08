@@ -71,6 +71,9 @@
       <option>Più servizi</option>
     </select>
 
+<label for="comune">Comune in cui offri il servizio</label>
+<input type="text" id="comune" placeholder="Es. Grumello del Monte">
+
     <label for="descrizione">Presentati ai proprietari</label>
     <textarea id="descrizione" rows="5"
       placeholder="Racconta la tua esperienza con gli animali..."></textarea>
@@ -103,14 +106,18 @@ const animali = Array.from(
   
     const servizio = document.getElementById('servizio').value;
 const descrizione = document.getElementById('descrizione').value.trim();
+    
+const comune = document.getElementById('comune').value.trim();
+
   const { error: erroreSalvataggio } = await supabaseClient
   .from('profili_custodi')
   .upsert({
     id: user.id,
     animali: animali.join(', '),
     taglie_cani: cani.checked ? taglie.join(', ') : '',
-    servizio: servizio,
-    descrizione: descrizione
+    servizio: servizio
+    descrizione: descrizione,
+comune: comune
   }, { onConflict: 'id' });
     if (erroreSalvataggio) {
   alert('Errore nel salvataggio: ' + erroreSalvataggio.message);
