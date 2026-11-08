@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cerca custodi - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f8f4;
+      margin: 0;
+      padding: 20px;
+      color: #263c30;
+    }
+    main { max-width: 650px; margin: auto; }
+    h1 { color: #26734c; }
+    input, button {
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 8px;
+    }
+    input { border: 1px solid #aaa; width: 65%; }
+    button {
+      background: #26734c;
+      color: white;
+      border: 0;
+      cursor: pointer;
+    }
+    .custode {
+      background: white;
+      padding: 16px;
+      margin-top: 15px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px #0001;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🐾 Cerca un custode</h1>
+  <p>Trova qualcuno che si prenda cura del tuo animale.</p>
+
+  <input id="comune" placeholder="Es. Palosco">
+  <button id="cerca">Cerca</button>
+
+  <div id="risultati"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseClient = supabase.createClient(
+    'https://svudedpkugiehiezfupd.supabase.co',
+    'sb_publishable_g05v_CHcx1c-ua7J36IKog_mnTxaJUB'
+  );
+
+  document.getElementById('cerca').addEventListener('click', async () => {
+    const comune = document.getElementById('comune').value.trim();
+    const risultati = document.getElementById('risultati');
+    risultati.replaceChildren();
+
+    if (!comune) {
+      risultati.textContent = 'Inserisci un Comune.';
+      return;
+    }
+
+    risultati.textContent = 'Ricerca in corso...';
+
+    const { data, error } = await supabaseClient
+      .from('profili_custodi')
+      .select('animali, servizio, descrizione, comune')
+      .ilike('comune', comune);
+
+    risultati.replaceChildren();
+
+    if (error) {
+      risultati.textContent = 'Impossibile caricare i custodi. Verificheremo i permessi di accesso.';
+      console.error(error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      risultati.textContent = 'Nessun custode trovato in questo Comune.';
+      return;
+    }
+
+    data.forEach(custode => {
+      const scheda = document.createElement('div');
+      scheda.className = 'custode';
+
+      const titolo = document.createElement('h3');
+      titolo.textContent = '🐶 Custode a ' + custode.comune;
+
+      const animali = document.createElement('p');
+      animali.textContent = 'Animali: ' + (custode.animali || 'Non specificati');
+
+      const servizio = document.createElement('p');
+      servizio.textContent = 'Servizio: ' + (custode.servizio || 'Non specificato');
+
+      const descrizione = document.createElement('p');
+      descrizione.textContent = custode.descrizione || '';
+
+      scheda.append(titolo, animali, servizio, descrizione);
+      risultati.appendChild(scheda);
+    });
+  });
+</script>
+</body>
+</html>
