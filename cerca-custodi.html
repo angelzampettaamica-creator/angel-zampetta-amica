@@ -67,7 +67,7 @@
     risultati.textContent = 'Ricerca in corso...';
 
     const { data, error } = await supabaseClient
-      .from('profili_custodi')
+      .from('custodi_ricerca')
       .select('animali, servizio, descrizione, comune')
       .ilike('comune', comune);
 
