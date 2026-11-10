@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Messaggi - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f8f4;
+      color: #263c30;
+      margin: 0;
+      padding: 20px;
+    }
+    main { max-width: 650px; margin: auto; }
+    h1 { color: #26734c; }
+    #conversazione {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      min-height: 250px;
+      margin: 15px 0;
+    }
+    .messaggio {
+      padding: 10px;
+      margin: 8px 0;
+      background: #e9f4ec;
+      border-radius: 10px;
+      overflow-wrap: anywhere;
+    }
+    .mio { background: #d4ebdc; }
+    textarea {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    button {
+      background: #26734c;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    #stato { margin-top: 12px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🐾 Messaggi privati</h1>
+  <p>Comunica con proprietari e custodi.</p>
+
+  <div id="stato">Caricamento...</div>
+  <div id="conversazione"></div>
+
+  <textarea id="testo" rows="3"
+    placeholder="Scrivi un messaggio..."></textarea>
+  <button id="invia">Invia messaggio</button>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseClient = supabase.createClient(
+    'https://svudedpkugiehiezfupd.supabase.co',
+    'sb_publishable_g05v_CHcx1c-ua7J36IKog_nnTxaJUB'
+  );
+
+  const stato = document.getElementById('stato');
+  const conversazione = document.getElementById('conversazione');
+  const testo = document.getElementById('testo');
+  const invia = document.getElementById('invia');
+
+  const destinatarioId =
+    new URLSearchParams(location.search).get('destinatario');
+
+  let utenteId = null;
+
+  async function avvia() {
+    const { data: { user }, error } =
+      await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+      stato.textContent = 'Accedi per utilizzare i messaggi.';
+      invia.disabled = true;
+      return;
+    }
+
+    utenteId = user.id;
+
+    if (!destinatarioId || destinatarioId === utenteId) {
+      stato.textContent =
+        'Apri una conversazione scegliendo un altro utente.';
+      invia.disabled = true;
+      return;
+    }
+
+    stato.textContent = 'Conversazione privata';
+    await caricaMessaggi();
+  }
+
+  async function caricaMessaggi() {
+    const { data, error } = await supabaseClient
+      .from('messaggi')
+      .select('*')
+      .or(
+        `and(mittente_id.eq.${utenteId},destinatario_id.eq.${destinatarioId}),and(mittente_id.eq.${destinatarioId},destinatario_id.eq.${utenteId})`
+      )
+      .order('created_at', { ascending: true });
+
+    if (error) {
+      stato.textContent = 'Errore nel caricamento dei messaggi.';
+      console.error(error);
+      return;
+    }
+
+    conversazione.replaceChildren();
+
+    for (const messaggio of data) {
+      const elemento = document.createElement('div');
+      elemento.className = 'messaggio' +
+        (messaggio.mittente_id === utenteId ? ' mio' : '');
+      elemento.textContent = messaggio.testo;
+      conversazione.appendChild(elemento);
+    }
+  }
+
+  invia.addEventListener('click', async () => {
+    const contenuto = testo.value.trim();
+    if (!contenuto || !utenteId || !destinatarioId) return;
+
+    invia.disabled = true;
+
+    const { error } = await supabaseClient
+      .from('messaggi')
+      .insert({
+        mittente_id: utenteId,
+        destinatario_id: destinatarioId,
+        testo: contenuto
+      });
+
+    invia.disabled = false;
+
+    if (error) {
+      stato.textContent = 'Impossibile inviare il messaggio.';
+      console.error(error);
+      return;
+    }
+
+    testo.value = '';
+    stato.textContent = 'Messaggio inviato.';
+    await caricaMessaggi();
+  });
+
+  avvia();
+</script>
+</body>
+</html>
