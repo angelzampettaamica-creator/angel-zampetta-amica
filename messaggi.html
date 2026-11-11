@@ -122,7 +122,7 @@
       const elemento = document.createElement('div');
       elemento.className = 'messaggio' +
         (messaggio.mittente_id === utenteId ? ' mio' : '');
-      elemento.textContent = messaggio.testo;
+      elemento.textContent = (messaggio.mittente_id === utenteId ? 'Tu: ' : 'Altro utente: ') + messaggio.testo;
       conversazione.appendChild(elemento);
     }
   }
