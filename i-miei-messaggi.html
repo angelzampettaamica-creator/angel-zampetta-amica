@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>I miei messaggi - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f8f4;
+      color: #263630;
+      margin: 0;
+      padding: 20px;
+    }
+    main { max-width: 650px; margin: auto; }
+    h1 { color: #26734c; }
+    .scheda {
+      background: white;
+      border-radius: 12px;
+      padding: 18px;
+      margin: 12px 0;
+      box-shadow: 0 2px 8px #00000012;
+    }
+    .scheda a {
+      display: block;
+      color: #17633e;
+      font-weight: bold;
+      text-decoration: none;
+      padding: 8px 0;
+    }
+    .scheda a:hover { text-decoration: underline; }
+    .anteprima { color: #555; overflow-wrap: anywhere; }
+    .data { color: #777; font-size: 13px; }
+    .errore { color: #a12222; }
+    .indietro { color: #17633e; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🐾 I miei messaggi</h1>
+  <p>Qui trovi le tue conversazioni private.</p>
+  <a class="indietro" href="area-personale.html">← Area personale</a>
+
+  <div id="stato">Caricamento messaggi...</div>
+  <div id="elenco"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseClient = supabase.createClient(
+    "https://svudedpkugiehiezfupd.supabase.co",
+    "sb_publishable_g05v_CHcxlc-ua7J36IKog_nnTxaJUB"
+  );
+
+  const stato = document.getElementById("stato");
+  const elenco = document.getElementById("elenco");
+
+  async function caricaConversazioni() {
+    const { data: { user }, error: authError } =
+      await supabaseClient.auth.getUser();
+
+    if (authError || !user) {
+      stato.textContent = "Accedi per vedere i tuoi messaggi.";
+      const link = document.createElement("a");
+      link.href = "accesso.html";
+      link.textContent = " Vai all'accesso";
+      stato.appendChild(link);
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from("messaggi")
+      .select("mittente_id,destinatario_id,testo")
+      .or(
+        "mittente_id.eq." + user.id +
+        ",destinatario_id.eq." + user.id
+      );
+
+    if (error) {
+      stato.textContent = "Impossibile caricare i messaggi.";
+      stato.className = "errore";
+      console.error("Errore messaggi:", error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      stato.textContent = "Non hai ancora messaggi.";
+      return;
+    }
+
+    const conversazioni = new Map();
+
+    for (const messaggio of data) {
+      const altroUtente =
+        messaggio.mittente_id === user.id
+          ? messaggio.destinatario_id
+          : messaggio.mittente_id;
+
+      if (!altroUtente || altroUtente === user.id) continue;
+
+      if (!conversazioni.has(altroUtente)) {
+        conversazioni.set(altroUtente, messaggio.testo || "");
+      }
+    }
+
+    stato.textContent =
+      "Conversazioni trovate: " + conversazioni.size;
+    elenco.replaceChildren();
+
+    for (const [id, anteprima] of conversazioni) {
+      const scheda = document.createElement("div");
+      scheda.className = "scheda";
+
+      const link = document.createElement("a");
+      link.href =
+        "messaggi.html?destinatario=" + encodeURIComponent(id);
+      link.textContent = "💬 Apri conversazione";
+
+      const descrizione = document.createElement("p");
+      descrizione.className = "anteprima";
+      descrizione.textContent = anteprima;
+
+      scheda.append(link, descrizione);
+      elenco.appendChild(scheda);
+    }
+  }
+
+  caricaConversazioni();
+</script>
+</body>
+</html>
