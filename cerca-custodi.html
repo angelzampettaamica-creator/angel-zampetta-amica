@@ -68,7 +68,7 @@
 
     const { data, error } = await supabaseClient
       .from('custodi_ricerca')
-      .select('animali, servizio, descrizione, comune')
+      .select('animali, servizio, descrizione, comune, id')
       .ilike('comune', comune);
 
     risultati.replaceChildren();
@@ -100,7 +100,19 @@
       const descrizione = document.createElement('p');
       descrizione.textContent = custode.descrizione || '';
 
-      scheda.append(titolo, animali, servizio, descrizione);
+      
+const contatta = document.createElement('a');
+contatta.textContent = '💬 Contatta custode';
+contatta.href = 'messaggi.html?destinatario=' + encodeURIComponent(custode.id);
+contatta.style.display = 'inline-block';
+contatta.style.marginTop = '12px';
+contatta.style.padding = '10px 16px';
+contatta.style.backgroundColor = '#26734c';
+contatta.style.color = 'white';
+contatta.style.borderRadius = '8px';
+contatta.style.textDecoration = 'none';
+
+      scheda.append(titolo, animali, servizio, descrizione, contatta);
       risultati.appendChild(scheda);
     });
   });
