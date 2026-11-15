@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Richiedi prenotazione - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f8f4;
+      color: #263b31;
+      padding: 20px;
+    }
+    main {
+      max-width: 560px;
+      margin: 35px auto;
+      padding: 25px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 3px 15px #00000012;
+    }
+    h1 { color: #187456; }
+    label {
+      display: block;
+      margin-top: 18px;
+      font-weight: bold;
+    }
+    input, select, textarea, button {
+      box-sizing: border-box;
+      width: 100%;
+      padding: 12px;
+      margin-top: 7px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+    button {
+      background: #187456;
+      color: white;
+      border: none;
+      margin-top: 22px;
+      cursor: pointer;
+    }
+    button:disabled {
+      opacity: .5;
+      cursor: wait;
+    }
+    #stato { margin-top: 16px; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🐾 Richiedi prenotazione</h1>
+  <p>Organizza la custodia del tuo animale.</p>
+
+  <form id="modulo">
+    <label for="animale">Il tuo animale</label>
+    <select id="animale" required>
+      <option value="">Caricamento animali...</option>
+    </select>
+
+    <label for="inizio">Data di inizio</label>
+    <input id="inizio" type="date" required>
+
+    <label for="fine">Data di fine</label>
+    <input id="fine" type="date" required>
+
+    <label for="servizio">Tipo di servizio</label>
+    <select id="servizio" required>
+      <option value="">Scegli un servizio</option>
+      <option value="Custodia a casa del custode">Custodia a casa del custode</option>
+      <option value="Custodia a domicilio">Custodia a domicilio</option>
+      <option value="Passeggiata">Passeggiata</option>
+      <option value="Visita a domicilio">Visita a domicilio</option>
+    </select>
+
+    <label for="note">Informazioni per il custode</label>
+    <textarea id="note" rows="4"
+      placeholder="Esigenze, abitudini e altre informazioni utili"></textarea>
+
+    <button id="invia" type="submit" disabled>
+      Invia richiesta di prenotazione
+    </button>
+  </form>
+
+  <p id="stato">Verifica dell'accesso...</p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const supabaseClient = supabase.createClient(
+    'https://svudedpkugiehiezfupd.supabase.co',
+    'INSERIRE_CHIAVE_PUBBLICA'
+  );
+
+  const modulo = document.getElementById('modulo');
+  const animale = document.getElementById('animale');
+  const invia = document.getElementById('invia');
+  const stato = document.getElementById('stato');
+
+  const custodeId =
+    new URLSearchParams(location.search).get('custode');
+
+  let utenteId = null;
+
+  async function avvia() {
+    const { data: { user }, error } =
+      await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+      stato.textContent = 'Devi accedere per prenotare.';
+      return;
+    }
+
+    utenteId = user.id;
+
+    if (!custodeId || !/^[0-9a-f-]{36}$/i.test(custodeId)) {
+      stato.textContent =
+        'Scegli un custode prima di richiedere una prenotazione.';
+      return;
+    }
+
+    if (custodeId === utenteId) {
+      stato.textContent = 'Non puoi prenotare te stesso.';
+      return;
+    }
+
+    const { data, error: erroreAnimali } =
+      await supabaseClient
+        .from('animali')
+        .select('id, nome')
+        .eq('proprietario_id', utenteId);
+
+    if (erroreAnimali) {
+      stato.textContent = 'Errore nel caricamento degli animali.';
+      return;
+    }
+
+    animale.replaceChildren();
+    animale.add(new Option('Scegli il tuo animale', ''));
+
+    for (const a of data) {
+      animale.add(new Option(a.nome, a.id));
+    }
+
+    if (data.length === 0) {
+      stato.textContent =
+        'Prima di prenotare devi registrare un animale.';
+      return;
+    }
+
+    invia.disabled = false;
+    stato.textContent = 'Compila i dati per inviare la richiesta.';
+  }
+
+  modulo.addEventListener('submit', async (evento) => {
+    evento.preventDefault();
+
+    if (!utenteId || !custodeId) return;
+
+    const inizio = document.getElementById('inizio').value;
+    const fine = document.getElementById('fine').value;
+
+    const oggi = new Date().toLocaleDateString('en-CA');
+
+    if (inizio < oggi || fine < inizio) {
+      stato.textContent = 'Controlla le date inserite.';
+      return;
+    }
+
+    invia.disabled = true;
+    stato.textContent = 'Invio in corso...';
+
+    const { error } = await supabaseClient
+      .from('prenotazioni')
+      .insert({
+        proprietario_id: utenteId,
+        custode_id: custodeId,
+        animale_id: animale.value,
+        data_inizio: inizio,
+        data_fine: fine,
+        servizio: document.getElementById('servizio').value,
+        note: document.getElementById('note').value.trim(),
+        stato: 'in_attesa'
+      });
+
+    if (error) {
+      stato.textContent =
+        'Impossibile inviare la richiesta: ' + error.message;
+      invia.disabled = false;
+      return;
+    }
+
+    stato.textContent =
+      '✅ Richiesta inviata! Attendi la risposta del custode.';
+    modulo.reset();
+    invia.disabled = false;
+  });
+
+  avvia();
+</script>
+</body>
+</html>
