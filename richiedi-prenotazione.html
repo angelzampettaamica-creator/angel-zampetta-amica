@@ -115,16 +115,9 @@
 
     utenteId = user.id;
 
-    if (!custodeId || !/^[0-9a-f-]{36}$/i.test(custodeId)) {
-      stato.textContent =
-        'Scegli un custode prima di richiedere una prenotazione.';
-      return;
-    }
+   
 
-    if (custodeId === utenteId) {
-      stato.textContent = 'Non puoi prenotare te stesso.';
-      return;
-    }
+   
 
     const { data, error: erroreAnimali } =
       await supabaseClient
@@ -150,6 +143,15 @@
       return;
     }
 
+    if (!custodeId || !/^[0-9a-f-]{36}$/i.test(custodeId)) {
+      stato.textContent =
+        'Scegli un custode prima di richiedere una prenotazione.';
+      return;
+    }
+    if (custodeId === utenteId) {
+      stato.textContent = 'Non puoi prenotare te stesso.';
+      return;
+    }
     invia.disabled = false;
     stato.textContent = 'Compila i dati per inviare la richiesta.';
   }
