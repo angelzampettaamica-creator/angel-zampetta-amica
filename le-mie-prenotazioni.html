@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Le mie prenotazioni - Angel Zampetta Amica</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: #f2f8f4;
+  color: #263b31;
+  margin: 0;
+  padding: 20px;
+}
+main {
+  max-width: 800px;
+  margin: 30px auto;
+}
+h1, h2 { color: #187456; }
+.card {
+  background: white;
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 14px;
+  box-shadow: 0 3px 12px #00000012;
+}
+button {
+  background: #187456;
+  color: white;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin: 5px;
+  cursor: pointer;
+}
+button:disabled {
+  opacity: .5;
+  cursor: wait;
+}
+.rifiuta { background: #b43c3c; }
+.stato { font-weight: bold; }
+a { color: #187456; }
+</style>
+</head>
+<body>
+<main>
+<h1>🐾 Le mie prenotazioni</h1>
+<p>Gestisci le richieste di Angel Zampetta Amica.</p>
+<a href="area-personale.html">← Area personale</a>
+
+<h2>📥 Richieste ricevute</h2>
+<div id="ricevute">Caricamento...</div>
+
+<h2>📤 Richieste inviate</h2>
+<div id="inviate">Caricamento...</div>
+
+<p id="messaggio" role="status"></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db = supabase.createClient(
+  'https://svudedpkugiehiezfupd.supabase.co',
+  'sb_publishable_g05v_CHcx1c-ua7J36IKog_nnTxaJUB'
+);
+
+let utenteId = null;
+
+const etichette = {
+  in_attesa: '⏳ In attesa',
+  accettata: '✅ Accettata',
+  rifiutata: '❌ Rifiutata'
+};
+
+function elemento(tag, testo) {
+  const e = document.createElement(tag);
+  e.textContent = testo;
+  return e;
+}
+
+function campo(scheda, nome, valore) {
+  scheda.appendChild(
+    elemento('p', nome + ': ' + (valore || 'Non indicato'))
+  );
+}
+
+function mostraErrore(contenitore, errore) {
+  contenitore.textContent =
+    'Errore nel caricamento: ' + errore.message;
+}
+
+async function carica() {
+  const ricevute = document.getElementById('ricevute');
+  const inviate = document.getElementById('inviate');
+
+  const {data: {user}, error: authError} =
+    await db.auth.getUser();
+
+  if (authError || !user) {
+    ricevute.textContent = 'Devi effettuare l’accesso.';
+    inviate.textContent = '';
+    return;
+  }
+
+  utenteId = user.id;
+
+  await Promise.all([
+    caricaLista('custode_id', ricevute, true),
+    caricaLista('proprietario_id', inviate, false)
+  ]);
+}
+
+async function caricaLista(campoId, contenitore, ricevuta) {
+  const {data, error} = await db
+    .from('prenotazioni')
+    .select('id, proprietario_id, custode_id, animale_id, data_inizio, data_fine, servizio, note, stato')
+    .eq(campoId, utenteId)
+    .order('data_inizio', {ascending: false});
+
+  if (error) {
+    mostraErrore(contenitore, error);
+    return;
+  }
+
+  contenitore.replaceChildren();
+
+  if (!data || data.length === 0) {
+    contenitore.textContent = ricevuta
+      ? 'Nessuna richiesta ricevuta.'
+      : 'Nessuna richiesta inviata.';
+    return;
+  }
+
+  for (const p of data) {
+    const scheda = elemento('div', '');
+    scheda.className = 'card';
+
+    scheda.appendChild(
+      elemento('h3', '🐶 Prenotazione')
+    );
+
+    campo(scheda, 'Animale (ID)', p.animale_id);
+    campo(scheda, 'Dal', p.data_inizio);
+    campo(scheda, 'Al', p.data_fine);
+    campo(scheda, 'Servizio', p.servizio);
+    campo(scheda, 'Note', p.note);
+
+    const stato = elemento(
+      'p',
+      etichette[p.stato] || p.stato
+    );
+    stato.className = 'stato';
+    scheda.appendChild(stato);
+
+    if (ricevuta && p.stato === 'in_attesa') {
+      const accetta = elemento('button', '✅ Accetta');
+      const rifiuta = elemento('button', '❌ Rifiuta');
+      rifiuta.className = 'rifiuta';
+
+      accetta.onclick = () =>
+        aggiorna(p.id, 'accettata', accetta, rifiuta);
+
+      rifiuta.onclick = () =>
+        aggiorna(p.id, 'rifiutata', accetta, rifiuta);
+
+      scheda.append(accetta, rifiuta);
+    }
+
+    contenitore.appendChild(scheda);
+  }
+}
+
+async function aggiorna(id, nuovoStato, accetta, rifiuta) {
+  accetta.disabled = true;
+  rifiuta.disabled = true;
+
+  const messaggio = document.getElementById('messaggio');
+  messaggio.textContent = 'Aggiornamento in corso...';
+
+  const {data, error} = await db
+    .from('prenotazioni')
+    .update({stato: nuovoStato})
+    .eq('id', id)
+    .eq('custode_id', utenteId)
+    .eq('stato', 'in_attesa')
+    .select('id');
+
+  if (error || !data || data.length !== 1) {
+    messaggio.textContent = 'Impossibile aggiornare: ' +
+      (error ? error.message : 'Permesso negato o richiesta già gestita.');
+    accetta.disabled = false;
+    rifiuta.disabled = false;
+    return;
+  }
+
+  messaggio.textContent = '✅ Prenotazione aggiornata!';
+  await carica();
+}
+
+carica();
+</script>
+</body>
+</html>
