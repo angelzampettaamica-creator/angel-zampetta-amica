@@ -145,7 +145,8 @@ async function caricaLista(campoId, contenitore, ricevuta) {
 let nomeAnimale = 'Nome non disponibile';
 let nomeProprietario = 'Nome non disponibile';
 let comuneProprietario = 'Non indicato';
-
+let nomeCustode = 'Nome non disponibile';
+let comuneCustode = 'Non indicato';
 if (ricevuta) {
   const { data: dettagli, error: erroreDettagli } = await db
     .rpc('dettagli_prenotazioni_ricevute');
@@ -177,12 +178,23 @@ if (ricevuta) {
   nomeAnimale = animale?.nome || nomeAnimale;
   nomeProprietario = proprietario?.nome || nomeProprietario;
   comuneProprietario = proprietario?.comune || comuneProprietario;
+  const { data: custode } = await db
+  .from('profili')
+  .select('nome, comune')
+  .eq('id', p.custode_id)
+  .maybeSingle();
+
+nomeCustode = custode?.nome || nomeCustode;
+comuneCustode = custode?.comune || comuneCustode;
 }
 
 campo(scheda, 'Animale', nomeAnimale);
 campo(scheda, 'Proprietario', nomeProprietario);
 campo(scheda, 'Comune', comuneProprietario);
-
+if (!ricevuta) {
+  campo(scheda, 'Custode', nomeCustode);
+  campo(scheda, 'Comune del custode', comuneCustode);
+}
     campo(scheda, 'Dal', p.data_inizio);
     campo(scheda, 'Al', p.data_fine);
     campo(scheda, 'Servizio', p.servizio);
