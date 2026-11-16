@@ -141,21 +141,48 @@ async function caricaLista(campoId, contenitore, ricevuta) {
     );
 
     
-const { data: animale } = await db
-  .from('animali')
-  .select('nome')
-  .eq('id', p.animale_id)
-  .maybeSingle();
 
-campo(scheda, 'Animale', animale?.nome || 'Nome non disponibile');
-const { data: proprietario } = await db
-  .from('profili')
-  .select('nome, comune')
-  .eq('id', p.proprietario_id)
-  .maybeSingle();
+let nomeAnimale = 'Nome non disponibile';
+let nomeProprietario = 'Nome non disponibile';
+let comuneProprietario = 'Non indicato';
 
-campo(scheda, 'Proprietario', proprietario?.nome || 'Nome non disponibile');
-campo(scheda, 'Comune', proprietario?.comune || 'Non indicato');
+if (ricevuta) {
+  const { data: dettagli, error: erroreDettagli } = await db
+    .rpc('dettagli_prenotazioni_ricevute');
+
+  if (erroreDettagli) {
+    console.error('Errore dettagli prenotazione:', erroreDettagli);
+  }
+
+  const dettaglio = dettagli?.find(
+    d => d.prenotazione_id === p.id
+  );
+
+  nomeAnimale = dettaglio?.nome_animale || nomeAnimale;
+  nomeProprietario = dettaglio?.nome_proprietario || nomeProprietario;
+  comuneProprietario = dettaglio?.comune_proprietario || comuneProprietario;
+} else {
+  const { data: animale } = await db
+    .from('animali')
+    .select('nome')
+    .eq('id', p.animale_id)
+    .maybeSingle();
+
+  const { data: proprietario } = await db
+    .from('profili')
+    .select('nome, comune')
+    .eq('id', p.proprietario_id)
+    .maybeSingle();
+
+  nomeAnimale = animale?.nome || nomeAnimale;
+  nomeProprietario = proprietario?.nome || nomeProprietario;
+  comuneProprietario = proprietario?.comune || comuneProprietario;
+}
+
+campo(scheda, 'Animale', nomeAnimale);
+campo(scheda, 'Proprietario', nomeProprietario);
+campo(scheda, 'Comune', comuneProprietario);
+
     campo(scheda, 'Dal', p.data_inizio);
     campo(scheda, 'Al', p.data_fine);
     campo(scheda, 'Servizio', p.servizio);
