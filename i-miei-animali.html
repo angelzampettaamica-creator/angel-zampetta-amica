@@ -44,6 +44,11 @@
 <a href="area-personale.html">← Torna all'Area personale</a>
 
     <h1>🐾 I miei animali</h1>
+    
+<button id="mostra-modulo" type="button">➕ Aggiungi un altro animale</button>
+
+<div id="modulo-animale">
+
     <p>Presenta il tuo animale a chi se ne prenderà cura.</p>
 
     <label for="nome">Nome dell'animale</label>
@@ -77,6 +82,9 @@
 
    <button id="salva-animale" type="button">💚 Salva il mio animale</button>
     <p>Qui puoi registrare il tuo animale e salvare le sue informazioni.</p>
+  
+</div>
+
     <h2>🐾 I miei animali registrati</h2>
 <div id="lista-animali"></div>
 <p id="messaggio-lista"></p>
@@ -90,6 +98,14 @@
     'sb_publishable_g05v_CHcx1c-ua7J36IKog_nnTxaJUB'
   );
 let animaleInModifica = null;
+  
+const moduloAnimale = document.getElementById('modulo-animale');
+const pulsanteMostraModulo = document.getElementById('mostra-modulo');
+
+pulsanteMostraModulo.addEventListener('click', () => {
+  moduloAnimale.style.display = 'block';
+});
+
 document.getElementById('salva-animale').addEventListener('click', async function () {
   const { data: { user }, error: erroreAccesso } =
     await supabaseClient.auth.getUser();
@@ -193,9 +209,16 @@ caricaAnimali();
   }
 
   if (!data || data.length === 0) {
+    
+moduloAnimale.style.display = 'block';
+pulsanteMostraModulo.style.display = 'none';
+
     messaggio.textContent = 'Non hai ancora registrato animali.';
     return;
   }
+
+moduloAnimale.style.display = 'none';
+pulsanteMostraModulo.style.display = 'block';
 
   messaggio.textContent = '';
   lista.replaceChildren();
@@ -231,6 +254,8 @@ pulsanteElimina.textContent = '🗑️ Elimina';
   document.getElementById('peso').value = animale.peso ?? '';
   document.getElementById('carattere').value = animale.carattere || '';
   document.getElementById('esigenze').value = animale.esigenze || '';
+
+moduloAnimale.style.display = 'block';
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
