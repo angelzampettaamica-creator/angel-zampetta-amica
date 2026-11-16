@@ -178,14 +178,21 @@ if (ricevuta) {
   nomeAnimale = animale?.nome || nomeAnimale;
   nomeProprietario = proprietario?.nome || nomeProprietario;
   comuneProprietario = proprietario?.comune || comuneProprietario;
-  const { data: custode } = await db
-  .from('profili')
-  .select('nome, comune')
-  .eq('id', p.custode_id)
-  .maybeSingle();
 
-nomeCustode = custode?.nome || nomeCustode;
-comuneCustode = custode?.comune || comuneCustode;
+const { data: dettagliCustode, error: erroreCustode } = await db
+  .rpc('dettagli_prenotazioni_inviate');
+
+if (erroreCustode) {
+  console.error('Errore dettagli custode:', erroreCustode);
+}
+
+const dettaglioCustode = dettagliCustode?.find(
+  d => d.prenotazione_id === p.id
+);
+
+nomeCustode = dettaglioCustode?.nome_custode || nomeCustode;
+comuneCustode = dettaglioCustode?.comune_custode || comuneCustode;
+
 }
 
 campo(scheda, 'Animale', nomeAnimale);
