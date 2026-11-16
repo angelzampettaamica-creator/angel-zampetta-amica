@@ -140,7 +140,15 @@ async function caricaLista(campoId, contenitore, ricevuta) {
       elemento('h3', '🐶 Prenotazione')
     );
 
-    campo(scheda, 'Animale (ID)', p.animale_id);
+    
+const { data: animale } = await db
+  .from('animali')
+  .select('nome')
+  .eq('id', p.animale_id)
+  .maybeSingle();
+
+campo(scheda, 'Animale', animale?.nome || 'Nome non disponibile');
+
     campo(scheda, 'Dal', p.data_inizio);
     campo(scheda, 'Al', p.data_fine);
     campo(scheda, 'Servizio', p.servizio);
