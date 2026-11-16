@@ -148,7 +148,14 @@ const { data: animale } = await db
   .maybeSingle();
 
 campo(scheda, 'Animale', animale?.nome || 'Nome non disponibile');
+const { data: proprietario } = await db
+  .from('profili')
+  .select('nome, comune')
+  .eq('id', p.proprietario_id)
+  .maybeSingle();
 
+campo(scheda, 'Proprietario', proprietario?.nome || 'Nome non disponibile');
+campo(scheda, 'Comune', proprietario?.comune || 'Non indicato');
     campo(scheda, 'Dal', p.data_inizio);
     campo(scheda, 'Al', p.data_fine);
     campo(scheda, 'Servizio', p.servizio);
