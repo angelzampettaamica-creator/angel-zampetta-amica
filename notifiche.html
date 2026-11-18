@@ -1,0 +1,132 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Notifiche - Angel Zampetta Amica</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f8f4;
+      color: #263b31;
+      margin: 0;
+      padding: 20px;
+    }
+    main { max-width: 750px; margin: auto; }
+    h1 { color: #187456; }
+    .notifica {
+      background: white;
+      padding: 16px;
+      margin: 12px 0;
+      border-radius: 12px;
+      border-left: 4px solid #187456;
+    }
+    .letta { opacity: 0.65; border-left-color: #aaa; }
+    button {
+      padding: 9px 14px;
+      background: #187456;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    a { color: #187456; }
+  </style>
+</head>
+<body>
+<main>
+  <h1>🔔 Le mie notifiche</h1>
+  <p><a href="area-personale.html">← Area personale</a></p>
+  <div id="elenco">Caricamento notifiche...</div>
+  <p id="messaggio" role="status"></p>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const db = supabase.createClient(
+  'https://svudedpkugiehiezfupd.supabase.co',
+  'sb_publishable_g05v_CHcxlc-ua7J36IKog_nnTxaJUB'
+);
+
+async function caricaNotifiche() {
+  const elenco = document.getElementById('elenco');
+  const messaggio = document.getElementById('messaggio');
+
+  const { data: { user }, error: authError } =
+    await db.auth.getUser();
+
+  if (authError || !user) {
+    elenco.textContent = 'Accedi per vedere le tue notifiche.';
+    return;
+  }
+
+  const { data, error } = await db
+    .from('notifiche')
+    .select('id, tipo, messaggio, letta, created_at')
+    .eq('utente_id', user.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    elenco.textContent = 'Errore nel caricamento delle notifiche.';
+    console.error(error);
+    return;
+  }
+
+  elenco.replaceChildren();
+
+  if (!data.length) {
+    elenco.textContent = 'Non hai ancora notifiche.';
+    return;
+  }
+
+  for (const n of data) {
+    const scheda = document.createElement('div');
+    scheda.className = 'notifica' + (n.letta ? ' letta' : '');
+
+    const testo = document.createElement('p');
+    testo.textContent = n.messaggio || 'Nuova notifica';
+    scheda.appendChild(testo);
+
+    const dataNotifica = document.createElement('small');
+    dataNotifica.textContent =
+      new Date(n.created_at).toLocaleString('it-IT');
+    scheda.appendChild(dataNotifica);
+
+    if (!n.letta) {
+      const pulsante = document.createElement('button');
+      pulsante.textContent = 'Segna come letta';
+      pulsante.style.display = 'block';
+      pulsante.style.marginTop = '12px';
+
+      pulsante.onclick = async () => {
+        pulsante.disabled = true;
+
+        const { error: errore } = await db
+          .from('notifiche')
+          .update({ letta: true })
+          .eq('id', n.id)
+          .eq('utente_id', user.id);
+
+        if (errore) {
+          messaggio.textContent = 'Impossibile aggiornare la notifica.';
+          pulsante.disabled = false;
+          return;
+        }
+
+        scheda.classList.add('letta');
+        pulsante.remove();
+        messaggio.textContent = 'Notifica segnata come letta.';
+      };
+
+      scheda.appendChild(pulsante);
+    }
+
+    elenco.appendChild(scheda);
+  }
+}
+
+caricaNotifiche();
+</script>
+</body>
+</html>
