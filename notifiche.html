@@ -53,8 +53,10 @@ async function caricaNotifiche() {
   const elenco = document.getElementById('elenco');
   const messaggio = document.getElementById('messaggio');
 
-  const { data: { user }, error: authError } =
-    await db.auth.getUser();
+  const { data: { session }, error: authError } =
+  await db.auth.getSession();
+
+const user = session?.user;
 
   if (authError || !user) {
     elenco.textContent = 'Accedi per vedere le tue notifiche.';
